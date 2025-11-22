@@ -1,4 +1,4 @@
-package com.apptarget
+package com.anonymous.apptarget
 
 import android.os.Build
 import android.os.Bundle

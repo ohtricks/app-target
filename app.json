@@ -2,6 +2,24 @@
   "expo": {
     "name": "app-target",
     "slug": "app-target",
-    "version": "1.0.0"
+    "scheme": "app-target",
+    "version": "1.0.0",
+    "android": {
+      "packge": "com.rafael.target",
+      "edgeToEdgeEnabled": true,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#3D44CD"
+      },
+      "package": "com.anonymous.apptarget"
+    },
+    "ios": {
+      "bundleIdentifier": "com.rafael.target",
+      "icon": "./assets/ios-icon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ]
   }
 }

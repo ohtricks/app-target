@@ -9,9 +9,12 @@ export default function Target(){
     return (
         <View style={{flex: 1, padding: 24}}>
             <PageHeader title="Meta" subtitle="Economize para alcançar sua meta financeira" />
+            
             <View style={{marginTop: 32, gap: 24}}>
                 <Input label="Nome da meta" placeholder="Ex: Viagem, carro, apartamento..." />
-                <CurrencyInput label="Valor alvo" placeholder="Ex: 1.000,00" value={0} />
+
+                <CurrencyInput label="Valor alvo (R$)" placeholder="Ex: 1.000,00" value={0} />
+
                 <Button title="Salvar" />
             </View>
         </View>

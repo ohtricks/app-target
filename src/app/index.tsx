@@ -1,9 +1,10 @@
 import { HomeHeader } from "@/components/HomeHeader";
 import { List } from "@/components/List";
 import { Target } from "@/components/Target";
+import { Button } from "@/components/Button";
 import { fontFamily } from "@/theme/fontFamily";
 import { router } from "expo-router";
-import { Button, Text, View } from "react-native";
+import { StatusBar, Text, View } from "react-native";
 
 const summary = {
     total: "R$ 6.000,00",
@@ -37,16 +38,18 @@ const targets = [
 export default function Index(){
     return (
         <View style={{flex: 1}}>
+            <StatusBar barStyle="light-content" />
             <HomeHeader data={summary} />
 
             <List title="Metas" 
                 data={targets} 
                 keyExtractor={(item) => item.id}
-                renderItem={({item}) => <Target data={item} />}
+                renderItem={({item}) => <Target data={item} onPress={() => router.navigate(`/in-progress/${item.id}`)} />}
                 emptyMessage="Nehum item"
                 containerStyle={{paddingHorizontal: 24}} />
-            
-            
+            <View style={{padding: 24, paddingBottom: 32}}>
+                <Button title="Nova Meta" onPress={() => router.navigate("/target")} />
+            </View>
         </View>
     )
 }

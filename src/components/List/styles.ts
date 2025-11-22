@@ -9,7 +9,6 @@ export const styles = StyleSheet.create({
         flex: 1
     },
     listContent: {
-        paddingTop: 16,
         paddingBottom: 72,
     },
     name: {
@@ -20,7 +19,7 @@ export const styles = StyleSheet.create({
         paddingBottom: 16,
         borderBottomWidth: 1,
         borderBottomColor: colors.gray[200],
-        fontSize: 18,
+        fontSize: 16,
         fontFamily: fontFamily.medium,
         color: colors.black
     }

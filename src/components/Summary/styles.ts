@@ -14,8 +14,8 @@ export const styles = StyleSheet.create({
         gap: 5
     },
     label: {
-        color: colors.blue[300],
-        fontSize: 10,
+        color: colors.white,
+        fontSize: 12,
         fontFamily: fontFamily.regular
     },
     value: {

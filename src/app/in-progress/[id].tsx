@@ -41,7 +41,10 @@ export default function InProgress(){
 
     return (
         <View style={{flex: 1, padding: 24}}>
-            <PageHeader title="Carro" />
+            <PageHeader title="Carro" rightButton={{
+                icon: "edit",
+                onPress: () => {}
+            }} />
 
             <Progress data={details} />
 

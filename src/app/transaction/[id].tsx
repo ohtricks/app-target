@@ -18,13 +18,14 @@ export default function Transaction(){
 
             <View style={{marginTop: 32, gap: 24}}>
                 <TransactionType selected={type} onChange={setType}  />
-                
+
                 <CurrencyInput label="Valor (R$)" value={0} />
 
                 <Input label="Motivo (opcional)"
                     placeholder="Ex: Gasto com mercado" />
+                
+                <Button title="Salvar" onPress={() => router.back()} />
             </View>
-            <Button title="voltar" onPress={() => router.back()} />
         </View>
     )
 }

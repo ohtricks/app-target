@@ -1,16 +1,15 @@
 import { Button } from "@/components/Button";
 import { List } from "@/components/List";
+import { Loading } from "@/components/Loading";
 import { PageHeader } from "@/components/PageHeder";
 import { Progress } from "@/components/Progress";
+import { TargetProps } from "@/components/Target";
 import { Transaction } from "@/components/Transaction";
-import { router, useLocalSearchParams } from "expo-router";
-import { View } from "react-native";
-
-const details = {
-    current: "R$ 580,00",
-    target: "R$ 1580,00",
-    percentage: 50
-}
+import { useTargetDatabase } from "@/database/useTargetDatabase";
+import { numberToCurrency } from "@/utils/numberToCurrency";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useCallback, useState } from "react";
+import { Alert, View } from "react-native";
 
 const transactions = [
     {
@@ -38,12 +37,56 @@ const transactions = [
 
 export default function InProgress(){
     const params = useLocalSearchParams<{id: string}>()
+    const targetDatabase = useTargetDatabase()
+
+    const [isFetching, setIsFetching] = useState(true)
+    const [details, setDetails] = useState({
+        name: "",
+        current: "R$ 0,00",
+        target: "R$ 0,00",
+        percentage: 0
+    })
+
+    async function fetchDetails(){
+        try {
+            const response = await targetDatabase.show(Number(params.id))
+            
+            setDetails({
+                name: response.name,
+                current: numberToCurrency(response.current),
+                target: numberToCurrency(response.amount),
+                percentage: response.percentage
+            })
+        } catch (error) {
+            Alert.alert("Erro", "Erro ao trazer dado Zé")
+            console.log(error)
+        }
+    }
+
+
+    async function fetchData() {
+        const fetchDetailsPromise = fetchDetails()
+
+        await Promise.all([fetchDetailsPromise])
+
+        setIsFetching(false)
+    }
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchData()
+        }, [])
+    )
+
+    if(isFetching){
+        return <Loading />
+    }
 
     return (
         <View style={{flex: 1, padding: 24}}>
-            <PageHeader title="Carro" rightButton={{
+            <PageHeader title={details.name} rightButton={{
                 icon: "edit",
-                onPress: () => {}
+                onPress: () => router.navigate(`/target?id=${params.id}`)
             }} />
 
             <Progress data={details} />

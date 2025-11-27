@@ -2,7 +2,7 @@ import { Input } from "@/components/Input";
 import { PageHeader } from "@/components/PageHeder";
 import { Button } from "@/components/Button";
 import { router, useLocalSearchParams } from "expo-router";
-import { Alert, View } from "react-native";
+import { Alert, StatusBar, View } from "react-native";
 import { CurrencyInput } from "@/components/CurrencyInput";
 import { useEffect, useState } from "react";
 import { useTargetDatabase } from "@/database/useTargetDatabase";
@@ -105,6 +105,8 @@ export default function Target(){
 
     return (
         <View style={{flex: 1, padding: 24}}>
+            <StatusBar barStyle="dark-content" />
+            
             <PageHeader title="Meta" subtitle="Economize para alcançar sua meta financeira" 
                 rightButton={
                     params.id ? { icon: "delete", onPress: handleRemove } : undefined

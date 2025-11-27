@@ -1,4 +1,4 @@
-import { HomeHeader } from "@/components/HomeHeader";
+import { HomeHeader, HomeHeaderProps } from "@/components/HomeHeader";
 import { List } from "@/components/List";
 import { Target, TargetProps } from "@/components/Target";
 import { Button } from "@/components/Button";
@@ -8,21 +8,23 @@ import { Alert, StatusBar, Text, View } from "react-native";
 import { TargetResponse, useTargetDatabase } from "@/database/useTargetDatabase";
 import { useCallback, useState } from "react";
 import { numberToCurrency } from "@/utils/numberToCurrency";
+import { useTransactionsDatabase } from "@/database/useTransactionsDatabase";
 
-const summary = {
-    total: "R$ 6.000,00",
-    input: { label: "Entradas", value: "R$ 1.000,42"},
-    output: { label: "Entradas", value: "-R$ 800,42"},
-}
 
 export default function Index(){
     const targetDatabase = useTargetDatabase();
+    const transactionsDatabase = useTransactionsDatabase()
 
     const [targets, setTargets] = useState<TargetProps[]>()
-    
+    const [summary, setSummary] = useState<HomeHeaderProps>({
+        total: "R$ -",
+        input: { label: "Entradas", value: "R$ -"},
+        output: { label: "Saidas", value: "R$ -"},
+    })
+
     async function fetchTargets(): Promise<TargetProps[]>{
         try {
-            const response = await targetDatabase.listBySavedValue()
+            const response = await targetDatabase.listByPercentageValue()
             return response.map((item) => (
                 {
                     id: String(item.id),
@@ -38,12 +40,34 @@ export default function Index(){
         }
     }
 
+    async function fetchSummary(): Promise<HomeHeaderProps>{
+        try {
+            const response = await transactionsDatabase.summary()
+
+            return {
+                total: numberToCurrency(response.input + response.output),
+                input: {
+                    label: "Entrada",
+                    value: numberToCurrency(response.input)
+                },
+                output: {
+                    label: "Saidas",
+                    value: numberToCurrency(response.output)
+                }
+            }
+        } catch (error) {
+            
+        }
+    }
+
     async function fetchData() {
         const targetDataPromise = fetchTargets()
+        const summaryDataPromise = fetchSummary()
 
-        const [targetData] = await Promise.all([targetDataPromise])
+        const [targetData, summaryData] = await Promise.all([targetDataPromise, summaryDataPromise])
 
         setTargets(targetData)
+        setSummary(summaryData)
     }
 
     useFocusEffect(

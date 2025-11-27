@@ -4,40 +4,20 @@ import { Loading } from "@/components/Loading";
 import { PageHeader } from "@/components/PageHeder";
 import { Progress } from "@/components/Progress";
 import { TargetProps } from "@/components/Target";
-import { Transaction } from "@/components/Transaction";
+import { Transaction, TransactionProps } from "@/components/Transaction";
 import { useTargetDatabase } from "@/database/useTargetDatabase";
+import { useTransactionsDatabase } from "@/database/useTransactionsDatabase";
 import { numberToCurrency } from "@/utils/numberToCurrency";
+import { TransactionTypes } from "@/utils/TransactionTypes";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
-import { Alert, View } from "react-native";
-
-const transactions = [
-    {
-        id: "1",
-        value: "R$ 300,00",
-        date: "12/04/25",
-        description: "CDB de 110% no banco xpto",
-        type: "input"
-    },
-    {
-        id: "2",
-        value: "R$ 300,00",
-        date: "12/04/25",
-        description: "CDB de 110% no banco xpto",
-        type: "output"
-    },
-    {
-        id: "3",
-        value: "R$ 300,00",
-        date: "12/04/25",
-        description: "CDB de 110% no banco xpto",
-        type: "input"
-    },
-]
+import { Alert, StatusBar, View } from "react-native";
+import dayjs from "dayjs";
 
 export default function InProgress(){
     const params = useLocalSearchParams<{id: string}>()
     const targetDatabase = useTargetDatabase()
+    const transactionsDatabase = useTransactionsDatabase()
 
     const [isFetching, setIsFetching] = useState(true)
     const [details, setDetails] = useState({
@@ -46,6 +26,7 @@ export default function InProgress(){
         target: "R$ 0,00",
         percentage: 0
     })
+    const [transactions, setTransaction] = useState<TransactionProps[]>([])
 
     async function fetchDetails(){
         try {
@@ -63,13 +44,48 @@ export default function InProgress(){
         }
     }
 
+    async function fetchTransactions(){
+        try {
+            const response = await transactionsDatabase.listByTargetId(Number(params.id))
+            const data: TransactionProps[] = response.map((item) => ({
+                id: String(item.id),
+                value: numberToCurrency(item.amount),
+                date: dayjs(item.created_at).format("DD/MM/YYYY [às] HH:mm"),
+                description: item.observation,
+                type: item.amount < 0 ? TransactionTypes.Output : TransactionTypes.Input,
+            }))
+            setTransaction(data)
+        } catch (error) {
+            
+        }
+    }
+
 
     async function fetchData() {
         const fetchDetailsPromise = fetchDetails()
+        const fetchTransactionsPromise = fetchTransactions()
 
-        await Promise.all([fetchDetailsPromise])
+        await Promise.all([fetchDetailsPromise, fetchTransactionsPromise])
 
         setIsFetching(false)
+    }
+
+    function handleTransactionRemove(id: string){
+         Alert.alert("Remover", "Deseja realmente remover?", [
+            { text: "Não" },
+            { text: "Sim", onPress: () => transactionRemove(id)}
+        ])
+    }
+
+    async function transactionRemove(id: string){
+        try {
+            await transactionsDatabase.remove(Number(id))
+            fetchData()
+            Alert.alert("Alerta", "Zé se deletou a transação!")
+        } catch (error) {
+            Alert.alert("Erro", "Não foi possivel deletar Zé")
+            console.log(error);
+        }
     }
 
     useFocusEffect(
@@ -84,6 +100,8 @@ export default function InProgress(){
 
     return (
         <View style={{flex: 1, padding: 24}}>
+            <StatusBar barStyle="dark-content" />
+            
             <PageHeader title={details.name} rightButton={{
                 icon: "edit",
                 onPress: () => router.navigate(`/target?id=${params.id}`)
@@ -94,7 +112,7 @@ export default function InProgress(){
             <List title="Transações" 
                 data={transactions} 
                 renderItem={({item}) => <Transaction data={item}
-                onRemove={() => {}} />} 
+                onRemove={() => handleTransactionRemove(item.id)} />} 
                 emptyMessage="Nenhuma transação registrada"/>
 
             <Button title="Nova transação" onPress={() => router.navigate(`/transaction/${params.id}`)} />
